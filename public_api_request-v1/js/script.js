@@ -68,7 +68,7 @@ function generateModalHTML(users){
                     <p class="modal-text cap">${userLocation.city}</p>
                     <hr>
                     <p class="modal-text">${userPhone}</p>
-                    <p class="modal-text">${userLocation.street}, ${userLocation.city}, ${userLocation.state} ${userLocation.postcode}</p>
+                    <p class="modal-text">${userLocation.street.name}, ${userLocation.city}, ${userLocation.state} ${userLocation.postcode}</p>
                     <p class="modal-text">Birthday: ${userDob.date.substring(0, 10)}</p>
                 </div>
             </div>
@@ -85,7 +85,17 @@ function generateModalHTML(users){
 
 function displayModalElements(){
     $('.card').click((e)=>{
-        const parentCard = $(e.target).parentsUntil('.gallery');
+        const parentCards = $(e.target).parentsUntil('.gallery');
+        let parentCard;
+        if(parentCards.length===0){
+            parentCard = e.target;
+        }
+        else{
+            parentCard = parentCards[parentCards.length-1];
+        }
+        
+        console.log(parentCards.length);
+        console.log(parentCard);
         const $name = $(parentCard).find('.card-info-container>h3').text();
         console.log($name);
         const $currentModal = $(`.modal-container:has(h3:contains(${$name}))`);
@@ -95,6 +105,7 @@ function displayModalElements(){
 function closeButton(){
     $('.modal-close-btn').click((e)=>{
         let parentModalContainer= $(e.target).parents('.modal-container')[0];
+        console.log(parentModalContainer);
         $(parentModalContainer).hide();
     })
 }
