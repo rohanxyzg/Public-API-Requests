@@ -1,4 +1,4 @@
-const usersURL = 'https://randomuser.me/api/';
+const usersURL = 'https://randomuser.me/api/?results=12';
 const gallery = document.getElementById('gallery');
 const body = document.querySelector('body');
 const modalDiv = document.getElementById('modal-div');
@@ -14,14 +14,16 @@ async function fetchData(url){
 const users = [];
 async function getRandomUsers(num){
     
-    for(let i=0;i<num;i++){
+    
         const currentUser = await fetchData(usersURL);
-       // console.log(currentUser.results[0]);
-        users.push(currentUser.results[0]);
-    }
+        console.log(currentUser.results[0]);
+        for(let i=0;i<12;i++){
+        users.push(currentUser.results[i]);
+        }
+    
     return users;
 }
-//console.log(getRandomUsers(12));
+console.log('users',getRandomUsers(12));
 
 function generateGalleryHTML(data){
     data.map(user=>{
@@ -68,7 +70,7 @@ function generateModalHTML(users){
                     <p class="modal-text cap">${userLocation.city}</p>
                     <hr>
                     <p class="modal-text">${userPhone}</p>
-                    <p class="modal-text">${userLocation.street.name}, ${userLocation.city}, ${userLocation.state} ${userLocation.postcode}</p>
+                    <p class="modal-text">${userLocation.street.number} ${userLocation.street.name}, ${userLocation.city}, ${userLocation.state} ${userLocation.postcode}</p>
                     <p class="modal-text">Birthday: ${userDob.date.substring(0, 10)}</p>
                 </div>
             </div>
