@@ -1,30 +1,7 @@
-const usersURL = 'https://randomuser.me/api/?results=12';
+const usersURL = 'https://randomuser.me/api/?results=12&nat=us,gb&inc=picture,name,email,location,dob,phone';
 const gallery = document.getElementById('gallery');
 const body = document.querySelector('body');
 const modalDiv = document.getElementById('modal-div');
-async function fetchData(url){
-    try{
-        const response = await fetch(url);
-        return await response.json();
-    }catch(error){
-        throw error;
-    }
-}
-//fetchData(usersURL);
-const users = [];
-async function getRandomUsers(num){
-    
-    
-        const currentUser = await fetchData(usersURL);
-        console.log(currentUser.results[0]);
-        for(let i=0;i<12;i++){
-        users.push(currentUser.results[i]);
-        }
-    
-    return users;
-}
-console.log('users',getRandomUsers(12));
-
 function generateGalleryHTML(data){
     data.map(user=>{
         const name = user.name.first+' '+user.name.last;
@@ -44,7 +21,7 @@ function generateGalleryHTML(data){
         </div>`;
         gallery.innerHTML += html;
     });
-    return users;
+    return data;
    
 }
 function generateModalHTML(users){
@@ -53,11 +30,18 @@ function generateModalHTML(users){
     
     users.forEach((user, index) => {
         // references for user information
+        console.log(user);
         let userName = user.name;
         let userMail = user.email;
         let userImg = user.picture;
+        let userAddress = user.location.street.name + ', ' 
+        + user.location.street.number
+        + '. ' + user.location.city;
+        let userBirthday = user.dob.date
+        .replace(/^(\d{4})-(\d{2})-(\d{2}).*/, ' $2/$3/$1');
         let userLocation = user.location;
         let userDob = user.dob;
+        console.log(user.cell);
         let userPhone = user.phone;
         modalHTML += `
         <div class = "modal-container">
@@ -71,7 +55,7 @@ function generateModalHTML(users){
                     <hr>
                     <p class="modal-text">${userPhone}</p>
                     <p class="modal-text">${userLocation.street.number} ${userLocation.street.name}, ${userLocation.city}, ${userLocation.state} ${userLocation.postcode}</p>
-                    <p class="modal-text">Birthday: ${userDob.date.substring(0, 10)}</p>
+                    <p class="modal-text">Birthday: ${userBirthday}</p>
                 </div>
             </div>
         </div>
@@ -111,11 +95,27 @@ function closeButton(){
         $(parentModalContainer).hide();
     })
 }
-getRandomUsers(12)
-    .then(generateGalleryHTML)
-    .then(generateModalHTML)
-    .then(displayModalElements)
-    .then(closeButton);
-// generateGalleryHTML(getRandomUsers(12));
+ // getting random user data
+ $.getJSON('https://randomuser.me/api/?results=12&nat=us,gb&inc=picture,name,email,location,dob,phone', 
+ data => {
+     // Hiding the loader when the request is complete
+     $('.loader').hide();
 
+     // appending the data into the gallery div
+     (generateGalleryHTML(data.results));
+
+     // appending modals to the modal-div
+     (generateModalHTML(data.results));
+     
+     // handling modal display
+     displayModalElements();
+
+    
+
+     // handling the x functionality
+    closeButton();
+
+    
+
+ }); // close Random User API request    
 
