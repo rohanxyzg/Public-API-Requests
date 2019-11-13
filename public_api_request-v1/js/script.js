@@ -1,4 +1,4 @@
-//Generating 12 random users and storing them in an array
+
 const users = [];
 const gallery = document.getElementById('gallery');
 $.ajax({
@@ -8,12 +8,16 @@ $.ajax({
 
         console.log(data.results);
         data.results.forEach(user => {
+            //Storing each user in the array
             users.push(user);
         });
-
+        //generating gallery HTML 
         generateGalleryHTML(users);
+        //generating Modal Window for each user
         generateModalHTML(users);
+        //generating modal listeners for each user
         generateModalListeners(users);
+        //calling separate function for handling close button
         closeButton();
     }
   });
