@@ -1,8 +1,25 @@
-const usersURL = 'https://randomuser.me/api/?results=12&nat=us,gb&inc=picture,name,email,location,dob,phone';
+//Generating 12 random users and storing them in an array
+const users = [];
 const gallery = document.getElementById('gallery');
-const body = document.querySelector('body');
-const modalDiv = document.getElementById('modal-div');
-function generateGalleryHTML(data){
+$.ajax({
+    url: 'https://randomuser.me/api/?format=json&results=12',
+    dataType: 'json',
+    success: function(data) {
+
+        console.log(data.results);
+        data.results.forEach(user => {
+            users.push(user);
+        });
+
+        generateGalleryHTML(users);
+        generateModalHTML(users);
+        generateModalListeners(users);
+        closeButton();
+    }
+  });
+  console.log(users);
+
+  function generateGalleryHTML(data){
     data.map(user=>{
         const name = user.name.first+' '+user.name.last;
         const img = user.picture.large;
@@ -22,26 +39,57 @@ function generateGalleryHTML(data){
         gallery.innerHTML += html;
     });
     return data;
-   
-}
+  }
+  function generateModalListeners(data){
+      let cards = document.querySelectorAll('.card');
+      cards.forEach( function(card){
+          card.addEventListener('click',(event)=>{
+              //console.log(card);
+              let userIndex = findUserIndex(card);
+              console.log(userIndex);
+              showModalWindow(userIndex);
+            
+          })
+        
+      })
+
+      
+  }
+  function findUserIndex(card){
+      let email = card.querySelector('p').textContent;
+      let userIndex = -1;
+      users.forEach(function(user,index){
+        
+          if(user.email === email){
+            console.log(user,typeof index);
+            userIndex = index;
+          }
+
+    
+      })
+      return userIndex;
+  }
+  function showModalWindow(userIndex){
+      const modalDiv = $('.modal-div');
+      const modals = modalDiv.children();
+      console.log(modals[userIndex]);
+      $(modals[userIndex]).show();
+    
+  }
+  
+  
 function generateModalHTML(users){
 
     let modalHTML = '';
-    
+    modalHTML += `<div class = "modal-div">`;
     users.forEach((user, index) => {
         // references for user information
-        console.log(user);
         let userName = user.name;
         let userMail = user.email;
         let userImg = user.picture;
-        let userAddress = user.location.street.name + ', ' 
-        + user.location.street.number
-        + '. ' + user.location.city;
         let userBirthday = user.dob.date
         .replace(/^(\d{4})-(\d{2})-(\d{2}).*/, ' $2/$3/$1');
         let userLocation = user.location;
-        let userDob = user.dob;
-        console.log(user.cell);
         let userPhone = user.phone;
         modalHTML += `
         <div class = "modal-container">
@@ -59,63 +107,20 @@ function generateModalHTML(users){
                 </div>
             </div>
         </div>
-        
         `; 
 
     }); 
-    
-    modalDiv.innerHTML = modalHTML;
+    modalHTML += `</div>`;
+    $(modalHTML).insertAfter(".gallery");
 
     $('.modal-container').hide();
 }
 
-function displayModalElements(){
-    $('.card').click((e)=>{
-        const parentCards = $(e.target).parentsUntil('.gallery');
-        let parentCard;
-        if(parentCards.length===0){
-            parentCard = e.target;
-        }
-        else{
-            parentCard = parentCards[parentCards.length-1];
-        }
-        
-        console.log(parentCards.length);
-        console.log(parentCard);
-        const $name = $(parentCard).find('.card-info-container>h3').text();
-        console.log($name);
-        const $currentModal = $(`.modal-container:has(h3:contains(${$name}))`);
-        $currentModal.show();
-    })
-}
 function closeButton(){
     $('.modal-close-btn').click((e)=>{
         let parentModalContainer= $(e.target).parents('.modal-container')[0];
-        console.log(parentModalContainer);
         $(parentModalContainer).hide();
     })
 }
- // getting random user data
- $.getJSON('https://randomuser.me/api/?results=12&nat=us,gb&inc=picture,name,email,location,dob,phone', 
- data => {
-     // Hiding the loader when the request is complete
-     $('.loader').hide();
-
-     // appending the data into the gallery div
-     (generateGalleryHTML(data.results));
-
-     // appending modals to the modal-div
-     (generateModalHTML(data.results));
+ 
      
-     // handling modal display
-     displayModalElements();
-
-    
-
-     // handling the x functionality
-    closeButton();
-
-    
-
- }); // close Random User API request    
-
